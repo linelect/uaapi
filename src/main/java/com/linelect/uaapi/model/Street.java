@@ -23,6 +23,10 @@ public class Street {
     public Street() {
     }
 
+    public Street(Long id) {
+        this.id = id;
+    }
+
     public Street(Settlement settlement, String name) {
         this.settlement = settlement;
         this.name = name;

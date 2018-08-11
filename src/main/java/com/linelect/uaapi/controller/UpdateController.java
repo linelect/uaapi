@@ -2,6 +2,7 @@ package com.linelect.uaapi.controller;
 
 import com.linelect.uaapi.model.*;
 import com.linelect.uaapi.repository.*;
+import com.linelect.uaapi.service.HouseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,15 +22,15 @@ public class UpdateController {
     private AreaRepository areaRepository;
     private SettlementRepository settlementRepository;
     private StreetRepository streetRepository;
-    private HouseRepository houseRepository;
+    private HouseService houseService;
 
     @Autowired
-    public UpdateController(RegionRepository regionRepository, AreaRepository areaRepository, SettlementRepository settlementRepository, StreetRepository streetRepository, HouseRepository houseRepository) {
+    public UpdateController(RegionRepository regionRepository, AreaRepository areaRepository, SettlementRepository settlementRepository, StreetRepository streetRepository, HouseService houseService) {
         this.regionRepository = regionRepository;
         this.areaRepository = areaRepository;
         this.settlementRepository = settlementRepository;
         this.streetRepository = streetRepository;
-        this.houseRepository = houseRepository;
+        this.houseService = houseService;
     }
 
     private volatile Map<String, Map<String, List<String>>> saved = new HashMap<>();
@@ -77,10 +78,8 @@ public class UpdateController {
 
             int index = Integer.valueOf(arrayOfSttributs[3]);
             if (arrayOfSttributs.length == 6) {
-                String[] arrayOfHouses = arrayOfSttributs[5].split(",");
-                for (String h : arrayOfHouses) {
-                    houseRepository.save(new House(h, index, street));
-                }
+                String houses = arrayOfSttributs[5];
+                houseService.save(street.getId(), index, houses);
             }
         }
 
