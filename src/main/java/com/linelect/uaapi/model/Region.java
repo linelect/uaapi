@@ -3,11 +3,10 @@ package com.linelect.uaapi.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "region", indexes = {@Index(name = "region_id_idx", columnList = "id"),
-        @Index(name = "region_name_idx", columnList = "name")})
+@Table(name = "region", indexes = {@Index(name = "region_name_idx", columnList = "name")})
 public class Region {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "name", nullable = false, unique = true, length = 50)

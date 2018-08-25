@@ -6,11 +6,10 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "area", indexes = {@Index(name = "area_id_idx", columnList = "id"),
-        @Index(name = "area_name_idx", columnList = "name")})
+@Table(name = "area", indexes = {@Index(name = "area_name_idx", columnList = "name")})
 public class Area {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "name", nullable = false, length = 50)

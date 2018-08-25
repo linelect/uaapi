@@ -3,14 +3,14 @@ package com.linelect.uaapi.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "house")
+@Table(name = "house", indexes = {@Index(name = "house_number_idx", columnList = "house_number")})
 public class House {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "house_numbers", nullable = false, length = 2000)
-    private String houseNumbers;
+    @Column(name = "house_number", nullable = false, length = 50)
+    private String houseNumber;
 
     @Column(name = "post_index")
     private int postIndex;
@@ -21,10 +21,15 @@ public class House {
     public House() {
     }
 
-    public House(String houseNumbers, int postIndex, Street street) {
-        this.houseNumbers = houseNumbers;
+    public House(String houseNumber, int postIndex, Street street) {
+        this.houseNumber = houseNumber;
         this.postIndex = postIndex;
         this.street = street;
+    }
+
+    public House(Long id, String houseNumbers, int postIndex, Street street) {
+        this(houseNumbers, postIndex, street);
+        this.id = id;
     }
 
     public Long getId() {
@@ -35,12 +40,12 @@ public class House {
         this.id = id;
     }
 
-    public String getHouseNumbers() {
-        return houseNumbers;
+    public String getHouseNumber() {
+        return houseNumber;
     }
 
-    public void setHouseNumbers(String houseNumbers) {
-        this.houseNumbers = houseNumbers;
+    public void setHouseNumber(String houseNumber) {
+        this.houseNumber = houseNumber;
     }
 
     public Street getStreet() {

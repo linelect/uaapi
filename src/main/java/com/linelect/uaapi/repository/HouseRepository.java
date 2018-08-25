@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface HouseRepository extends JpaRepository<House, Long> {
     List<House> findAllByStreetId(long streetId);
-    List<House> findAllByStreetIdAndPostIndex(long streetId, int postIndex);
+    List<House> findAllByHouseNumberInAndStreet_Id(List<String> names, long streetId);
+    House findByStreetIdAndPostIndex(long streetId, int postIndex);
 }
