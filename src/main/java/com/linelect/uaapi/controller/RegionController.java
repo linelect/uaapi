@@ -1,14 +1,12 @@
 package com.linelect.uaapi.controller;
 
-import com.linelect.uaapi.model.Region;
-import com.linelect.uaapi.repository.RegionRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+        import com.linelect.uaapi.model.Region;
+        import com.linelect.uaapi.repository.RegionRepository;
+        import org.springframework.beans.factory.annotation.Autowired;
+        import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+        import javax.servlet.http.HttpServletResponse;
+        import java.util.List;
 
 @RestController
 @RequestMapping("/regions")
@@ -21,7 +19,12 @@ public class RegionController {
     }
 
     @GetMapping
-    public List<Region> getAll() {
+    @ResponseBody
+    public List<Region> getAll(HttpServletResponse response) {
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+        response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+//        response.setHeader("Access-Control-Allow-Credentials", true);
         return regionRepository.findAll();
     }
 

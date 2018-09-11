@@ -1,0 +1,23 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Adresses REST API</title>
+</head>
+
+<body>
+
+<script>
+    function httpGet(theUrl)
+    {
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open( "GET", theUrl, false ); // false for synchronous request
+        xmlHttp.send( null );
+        return JSON.parse(xmlHttp.responseText);
+    }
+    document.write(httpGet("http://localhost:8080/regions"));
+
+</script>
+
+</body>
+</html>

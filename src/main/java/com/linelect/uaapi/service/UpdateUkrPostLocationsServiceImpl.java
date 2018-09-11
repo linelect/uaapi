@@ -10,19 +10,25 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 @Service
 public class UpdateUkrPostLocationsServiceImpl implements UpdateLocationsService {
 
     private final Logger LOGGER = LoggerFactory.getLogger(UpdateUkrPostLocationsServiceImpl.class);
     private static final String ZIP_FILE_URL = "http://services.ukrposhta.com/postindex_new/upload/houses.zip";
+    private static final String FILE_NAME_IN_ZIP = "houses_en.csv";
+    private static final String FILE_ENCODING = "cp1251";
     private volatile Map<String, Map<String, List<String>>> saved = new HashMap<>();
     private volatile Map<Settlement, List<String>> savedStreets = new HashMap<>();
 
@@ -48,11 +54,12 @@ public class UpdateUkrPostLocationsServiceImpl implements UpdateLocationsService
         LOGGER.info("Start update locations from UkrPost.");
 
         List<String> lines = new ArrayList<>();
-        try (Stream<String> stream = Files.lines(Paths.get("D:\\Projects\\Cities API\\houses\\houses_en.csv"))) {
-            lines = stream.collect(Collectors.toList());
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-        }
+//        try (Stream<String> stream = Files.lines(Paths.get("D:\\Projects\\Cities API\\houses\\houses_en.csv"))) {
+//            lines = stream.collect(Collectors.toList());
+//        } catch (Exception e) {
+//            LOGGER.error(e.getMessage());
+//        }
+        lines = getLinesFromRemoteZipFile();
 
         Region region = null;
         Area area = null;
@@ -76,12 +83,13 @@ public class UpdateUkrPostLocationsServiceImpl implements UpdateLocationsService
             }
 
             String areaName = arrayOfSttributs[1];
+            String settlementName = arrayOfSttributs[2];
+            areaName = "".equals(areaName) ? settlementName : areaName;
             if (saved.get(regionName).get(areaName) == null) {
                 area = areaRepository.save(new Area(areaName, region));
                 saved.get(regionName).put(areaName, new ArrayList<>());
             }
 
-            String settlementName = arrayOfSttributs[2];
             if (!saved.get(regionName).get(areaName).contains(settlementName)) {
                 settlement = settlementRepository.save(new Settlement(settlementName, area));
                 saved.get(regionName).get(areaName).add(settlementName);
@@ -112,5 +120,30 @@ public class UpdateUkrPostLocationsServiceImpl implements UpdateLocationsService
             }
         }
         LOGGER.info("Update locations from UkrPost successfully completed.");
+    }
+
+    private List<String> getLinesFromRemoteZipFile() {
+        List<String> lines = new ArrayList<>();
+        try {
+            URL url = new URL(ZIP_FILE_URL);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            InputStream in = connection.getInputStream();
+            ZipInputStream zipIn = new ZipInputStream(in);
+            ZipEntry entry = zipIn.getNextEntry();
+            while (entry != null) {
+                if (!entry.isDirectory() && FILE_NAME_IN_ZIP.equals(entry.getName())) {
+                    Scanner sc = new Scanner(zipIn, FILE_ENCODING);
+                    while(sc.hasNextLine()) {
+                        lines.add(sc.nextLine());
+                    }
+                }
+                zipIn.closeEntry();
+                entry = zipIn.getNextEntry();
+            }
+        } catch (IOException e) {
+            LOGGER.error("Error while reading file from UkrPost site.", e);
+        }
+        return lines;
     }
 }
